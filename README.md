@@ -4,30 +4,28 @@ XJTU-2023夏小学期计算机暑期实习第五组项目
 
 
 
-## Installation
+## 下载
 
-Run command below to download codes:
+运行下述命令以下载本仓库源代码:
 
 ```shell
-git clone --recurse-submodules git@github.com:jackwang0108/AreYouFull-Backend.git
+git clone --recursive https://github.com/jackwang0108/AreYouFull.git
 ```
 
 
 
+## 运行
 
+### 数据库构建
 
-## Run
-
-### Database
-
-To build the database, you can use script below:
+运行下述脚本以创建数据库:
 
 ```shell
 cd AreYouFull
 bash Database/create_db.sh
 ```
 
-or you can mannually `source` mysql script in `Database/AreYouFull`
+或者你可以在MySQL终端中手动`source`在`Database/AreYouFull`下的MySQL脚本
 
 
 
