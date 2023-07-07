@@ -1,0 +1,6 @@
+[submodule "Backend"]
+	path = Backend
+	url = https://github.com/jackwang0108/AreYouFull-Backend.git
+[submodule "FrontEnd"]
+	path = FrontEnd
+	url = https://github.com/jackwang0108/AreYouFull-Frontend.git
