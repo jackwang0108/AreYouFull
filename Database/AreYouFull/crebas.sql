@@ -1,6 +1,6 @@
 /*==============================================================*/
 /* DBMS name:      MySQL 5.0                                    */
-/* Created on:     2023/6/30 9:35:57                            */
+/* Created on:     2023/7/7 16:26:17                            */
 /*==============================================================*/
 
 
@@ -12,7 +12,7 @@ drop table if exists deliverer;
 
 drop table if exists merchandise;
 
-drop table if exists merchant;
+drop table if exists orderDetail;
 
 drop table if exists orders;
 
@@ -26,14 +26,11 @@ drop table if exists user;
 create table account
 (
    accountID            int not null auto_increment,
-   userID               int,
-   merchantID           int,
-   password             varchar(32) not null,
-   account              varchar(32) not null,
-   phone                char(11) not null,
-   email                varchar(32),
-   avatar               varchar(64) not null,
-   type                 smallint,
+   password             varchar(64) not null,
+   nickname             varchar(64),
+   accountPhone         char(11) not null,
+   email                varchar(64),
+   avatar               varchar(64),
    primary key (accountID)
 );
 
@@ -42,23 +39,19 @@ create table account
 /*==============================================================*/
 create table address
 (
-   communicationID      int not null auto_increment,
-   shopID               int,
+   addressID            int not null,
    accountID            int,
    address              varchar(64) not null,
-   primary key (communicationID)
+   phone                char(11) not null,
+   primary key (addressID)
 );
-
-alter table address comment '地址信息';
 
 /*==============================================================*/
 /* Table: deliverer                                             */
 /*==============================================================*/
 create table deliverer
 (
-   delivererID          int not null auto_increment,
-   delivererNickname    varchar(64) not null,
-   delivererStatus      smallint not null,
+   delivererID          int not null,
    primary key (delivererID)
 );
 
@@ -68,27 +61,23 @@ create table deliverer
 create table merchandise
 (
    merchandiseID        int not null auto_increment,
-   shopID               int,
-   orderID              int,
+   shopID               int not null,
    merchandiseName      varchar(64) not null,
-   price                int not null,
-   path                 longtext not null,
+   merchandisePrice     float not null,
+   merchandiseImgPath   varchar(64) not null,
    merchandiseStatus    tinyint not null,
    primary key (merchandiseID)
 );
 
 /*==============================================================*/
-/* Table: merchant                                              */
+/* Table: orderDetail                                           */
 /*==============================================================*/
-create table merchant
+create table orderDetail
 (
-   merchantID           int not null auto_increment,
-   accountID            int,
-   merchantNickname     varchar(64) not null,
-   primary key (merchantID)
+   orderID              int not null,
+   merchandiseID        int not null,
+   orderNum             int not null
 );
-
-alter table merchant comment 'Merchant表示商家';
 
 /*==============================================================*/
 /* Table: orders                                                */
@@ -96,17 +85,16 @@ alter table merchant comment 'Merchant表示商家';
 create table orders
 (
    orderID              int not null auto_increment,
-   userID               int,
-   shopID               int,
    delivererID          int,
+   userID               int not null,
+   shopID               int not null,
    status               smallint not null,
    createTime           datetime not null,
    payTime              datetime,
-   finishTime           datetime,
    merchantAssureTime   datetime,
    merchantFinishTime   datetime,
    delivererGetTime     datetime,
-   delivererFinishTime  datetime,
+   finishTime           datetime,
    primary key (orderID)
 );
 
@@ -116,62 +104,47 @@ create table orders
 create table shop
 (
    shopID               int not null auto_increment,
-   merchantID           int,
-   communicationID      int,
-   shopName             varchar(32),
+   merchantID           int not null,
+   shopName             varchar(64),
    primary key (shopID)
 );
-
-alter table shop comment '一个商家可能有多个商铺
-';
 
 /*==============================================================*/
 /* Table: user                                                  */
 /*==============================================================*/
 create table user
 (
-   userID               int not null auto_increment,
-   accountID            int,
-   userNickname         varchar(64) not null,
+   userID               int not null,
    primary key (userID)
 );
 
-alter table account add constraint FK_merchant_has_account2 foreign key (merchantID)
-      references merchant (merchantID) on delete restrict on update restrict;
-
-alter table account add constraint FK_user_has_account2 foreign key (userID)
-      references user (userID) on delete restrict on update restrict;
-
-alter table address add constraint FK_account_has_addr foreign key (accountID)
+alter table address add constraint FK_address_accountID_ref_account_accountID foreign key (accountID)
       references account (accountID) on delete restrict on update restrict;
 
-alter table address add constraint FK_shop_has_addr2 foreign key (shopID)
+alter table deliverer add constraint FK_deliverer_delivererID_ref_account_accountID foreign key (delivererID)
+      references account (accountID) on delete restrict on update restrict;
+
+alter table merchandise add constraint FK_merchandise_shopID_ref_shop_shopID foreign key (shopID)
       references shop (shopID) on delete restrict on update restrict;
 
-alter table merchandise add constraint FK_order_has_merchandise foreign key (orderID)
+alter table orderDetail add constraint FK_orderDetail_orderID_ref_order_orderID foreign key (orderID)
       references orders (orderID) on delete restrict on update restrict;
 
-alter table merchandise add constraint FK_shop_has_merchandise foreign key (shopID)
-      references shop (shopID) on delete restrict on update restrict;
+alter table orderDetail add constraint FK_orderDetial_merchandiseID_ref_merchandise_merchandiseID foreign key (merchandiseID)
+      references merchandise (merchandiseID) on delete restrict on update restrict;
 
-alter table merchant add constraint FK_merchant_has_account foreign key (accountID)
-      references account (accountID) on delete restrict on update restrict;
-
-alter table orders add constraint FK_deliverer_deliver_order foreign key (delivererID)
+alter table orders add constraint FK_order_delivererID_ref_deliverer_delivererID foreign key (delivererID)
       references deliverer (delivererID) on delete restrict on update restrict;
 
-alter table orders add constraint FK_merchant_has_order foreign key (shopID)
+alter table orders add constraint FK_order_shopID_ref_order_shopID foreign key (shopID)
       references shop (shopID) on delete restrict on update restrict;
 
-alter table orders add constraint FK_user_create_order foreign key (userID)
+alter table orders add constraint FK_order_userID_ref_user_userID foreign key (userID)
       references user (userID) on delete restrict on update restrict;
 
-alter table shop add constraint FK_open foreign key (merchantID)
-      references merchant (merchantID) on delete restrict on update restrict;
+alter table shop add constraint FK_Reference_10 foreign key (merchantID)
+      references account (accountID) on delete restrict on update restrict;
 
-alter table shop add constraint FK_shop_has_addr foreign key (communicationID)
-      references address (communicationID) on delete restrict on update restrict;
-
-alter table user add constraint FK_user_has_account foreign key (accountID)
+alter table user add constraint FK_user_userID_ref_account_accountID foreign key (userID)
       references account (accountID) on delete restrict on update restrict;
 
